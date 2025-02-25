@@ -1,73 +1,109 @@
 package com.ugb.myfirstapplication;
 
 
+
+
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
-import android.widget.TabHost;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-    TabHost tbh;
-    Button btn;
-    TextView tempVal;
-    Spinner spn;
-    conversores objConversores = new conversores();
+    private TabHost tabHost;
+    private EditText txtConsumo, txtCantidad;
+    private TextView lblResultadoAgua, lblResultadoArea;
+    private Spinner spnDeArea, spnAArea;
+    private final Map<String, Double> conversionRates = new HashMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tbh = findViewById(R.id.tbhConversor);
-        tbh.setup();
+        // Configuración de TabHost
+        tabHost = findViewById(android.R.id.tabhost);
+        tabHost.setup();
+        agregarPestana("Pago de Agua", R.id.tab1);
+        agregarPestana("Conversor de Área", R.id.tab2);
 
-        tbh.addTab(tbh.newTabSpec("Monedas").setContent(R.id.tabMonedas).setIndicator("MONEDAS", null));
-        tbh.addTab(tbh.newTabSpec("Longitud").setContent(R.id.tabLongitud).setIndicator("LONGITUD", null));
-        tbh.addTab(tbh.newTabSpec("Tiempo").setContent(R.id.tabTiempo).setIndicator("TIEMPO", null));
-        tbh.addTab(tbh.newTabSpec("Almacenamiento").setContent(R.id.tabAlmacenamiento).setIndicator("ALMACENAMIENTO", null));
-        tbh.addTab(tbh.newTabSpec("Transferenciadedatos").setContent(R.id.tabAlmacenamiento).setIndicator("TRANSFERENCIADEDATOS", null));
-
-        btn = findViewById(R.id.btnCalcular);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int opcion = tbh.getCurrentTab();
-
-                spn = findViewById(R.id.spnDeMonedas);
-                int de = spn.getSelectedItemPosition();
-
-                spn = findViewById(R.id.spnAMonedas);
-                int a = spn.getSelectedItemPosition();
-
-                tempVal = findViewById(R.id.txtCantidad);
-                double cantidad = Double.parseDouble(tempVal.getText().toString());
-
-                tempVal = findViewById(R.id.lblRespuesta);
-                double respuesta = objConversores.convertir(opcion, de, a, cantidad);
-                tempVal.setText("Respuesta: "+ respuesta);
-            }
-        });
+        // Inicialización de componentes
+        inicializarPestanaAgua();
+        inicializarPestanaArea();
     }
-}
-class conversores{
-    double[][] valores= {
-            {1,0.98, 7.73, 25.45, 36.78, 508.87, 8.74},//monedas
-            {},//Longitud
-            {},//tiempo
-            {},//Almacenamiento
-            {},//Transferenciadedatos
-    };
-    public double convertir(int opcion, int de, int a, double cantidad){
-        return valores[opcion][a] / valores[opcion][de] * cantidad;
+
+    private void agregarPestana(String nombre, int id) {
+        TabHost.TabSpec spec = tabHost.newTabSpec(nombre);
+        spec.setContent(id);
+        spec.setIndicator(nombre);
+        tabHost.addTab(spec);
+    }
+
+    private void inicializarPestanaAgua() {
+        txtConsumo = findViewById(R.id.txtConsumo);
+        lblResultadoAgua = findViewById(R.id.lblResultadoAgua);
+        Button btnCalcular = findViewById(R.id.btnCalcularAgua);
+
+        btnCalcular.setOnClickListener(v -> calcularPagoAgua());
+    }
+
+    private void calcularPagoAgua() {
+        String input = txtConsumo.getText().toString();
+        if (input.isEmpty()) {
+            Toast.makeText(this, "Ingrese un valor válido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int consumo = Integer.parseInt(input);
+        double total = 6; // Cuota fija
+
+        if (consumo > 18) {
+            int exceso = consumo - 18;
+            if (consumo <= 28) {
+                total += exceso * 0.45;
+            } else {
+                total += (10 * 0.45) + ((consumo - 28) * 0.65);
+            }
+        }
+        lblResultadoAgua.setText("Total a pagar: $" + total);
+    }
+
+    private void inicializarPestanaArea() {
+        txtCantidad = findViewById(R.id.txtCantidadArea);
+        spnDeArea = findViewById(R.id.spnDeArea);
+        spnAArea = findViewById(R.id.spnAArea);
+        lblResultadoArea = findViewById(R.id.lblResultadoArea);
+        Button btnConvertir = findViewById(R.id.btnConvertirArea);
+
+        // Definir conversiones
+        String[] unidades = {"Pie Cuadrado", "Vara Cuadrada", "Yarda Cuadrada", "Metro Cuadrado", "Tareas", "Manzana", "Hectárea"};
+        double[] valores = {1, 1.43, 0.111, 0.0929, 0.000155, 0.00001317, 0.00001};
+        for (int i = 0; i < unidades.length; i++) {
+            for (int j = 0; j < unidades.length; j++) {
+                conversionRates.put(unidades[i] + "-" + unidades[j], valores[j] / valores[i]);
+            }
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, unidades);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnDeArea.setAdapter(adapter);
+        spnAArea.setAdapter(adapter);
+
+        btnConvertir.setOnClickListener(v -> calcularConversionArea());
+    }
+
+    private void calcularConversionArea() {
+        String cantidadStr = txtCantidad.getText().toString();
+        if (cantidadStr.isEmpty()) {
+            Toast.makeText(this, "Ingrese un valor válido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        double cantidad = Double.parseDouble(cantidadStr);
+        String de = spnDeArea.getSelectedItem().toString();
+        String a = spnAArea.getSelectedItem().toString();
+
+        double resultado = cantidad * conversionRates.get(de + "-" + a);
+        lblResultadoArea.setText("Resultado: " + resultado + " "+a);
     }
 }

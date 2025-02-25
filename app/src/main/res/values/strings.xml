@@ -1,12 +1,47 @@
 <resources>
+    <!-- Textos para vistas -->
     <string name="app_name">My First Application</string>
-    <string-array name="monedas">
-        <item>Dolar</item>
-        <item>Euro</item>
-        <item>Quetzalez</item>
-        <item>Lempiras</item>
-        <item>Cordobas</item>
-        <item>Colon CR</item>
-        <item>Colon SV</item>
+    <string name="tvDisplay_hint">0</string>
+    <string name="etInputValue_hint">Ingresa el valor</string>
+    <string name="etResultValue_hint">Resultado</string>
+    <string name="btnConvert_text">Convertir</string>
+
+    <!-- Textos para botones numéricos -->
+    <string name="btn0_text">0</string>
+    <string name="btn1_text">1</string>
+    <string name="btn2_text">2</string>
+    <string name="btn3_text">3</string>
+    <string name="btn4_text">4</string>
+    <string name="btn5_text">5</string>
+    <string name="btn6_text">6</string>
+    <string name="btn7_text">7</string>
+    <string name="btn8_text">8</string>
+    <string name="btn9_text">9</string>
+
+    <!-- Textos para botones de operadores -->
+    <string name="btnAdd_text">+</string>
+    <string name="btnSubtract_text">-</string>
+    <string name="btnMultiply_text">*</string>
+    <string name="btnDivide_text">/</string>
+
+    <!-- Texto para botón de igual -->
+    <string name="btnEquals_text">=</string>
+
+    <!-- Texto para botón de limpiar -->
+    <string name="btnClear_text">C</string>
+
+    <!-- Textos para el spinner de conversión -->
+    <string-array name="conversion_types">
+        <item>Pie cuadrado</item>
+        <item>Vara Cuadrada</item>
+        <item>Yarda cuadrada</item>
+        <item>Metro Cuadrado</item>
+        <item>Tareas</item>
+        <item>Hectarea</item>
+        <item></item>
     </string-array>
+
+    <!-- Mensajes de Toast -->
+    <string name="toast_invalid_value">Ingresa un valor válido</string>
+    <string name="toast_divide_by_zero">No se puede dividir por cero</string>
 </resources>
