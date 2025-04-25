@@ -1,15 +1,6 @@
 package com.ugb.myfirstapplication;
 
 
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,57 +13,59 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
-    TextView tempVal;
+    TabHost tbh;
     Button btn;
-    MediaPlayer mediaPlayer;
+    TextView tempVal;
+    Spinner spn;
+    conversores objConversores = new conversores();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tempVal = findViewById(R.id.lblReproductorMusica);
-        reproductorMusca();
-        btn = findViewById(R.id.btnIniciar);
+
+        tbh = findViewById(R.id.tbhConversor);
+        tbh.setup();
+
+        tbh.addTab(tbh.newTabSpec("Monedas").setContent(R.id.tabMonedas).setIndicator("MONEDAS", null));
+        tbh.addTab(tbh.newTabSpec("Longitud").setContent(R.id.tabLongitud).setIndicator("LONGITUD", null));
+        tbh.addTab(tbh.newTabSpec("Tiempo").setContent(R.id.tabTiempo).setIndicator("TIEMPO", null));
+        tbh.addTab(tbh.newTabSpec("Almacenamiento").setContent(R.id.tabAlmacenamiento).setIndicator("ALMACENAMIENTO", null));
+
+        btn = findViewById(R.id.btnCalcular);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                iniciar();
+                int opcion = tbh.getCurrentTab();
+
+                spn = findViewById(R.id.spnDeMonedas);
+                int de = spn.getSelectedItemPosition();
+
+                spn = findViewById(R.id.spnAMonedas);
+                int a = spn.getSelectedItemPosition();
+
+                tempVal = findViewById(R.id.txtCantidad);
+                double cantidad = Double.parseDouble(tempVal.getText().toString());
+
+                tempVal = findViewById(R.id.lblRespuesta);
+                double respuesta = objConversores.convertir(opcion, de, a, cantidad);
+                tempVal.setText("Respuesta: "+ respuesta);
             }
         });
-        btn = findViewById(R.id.btnPausar);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pausar();
-            }
-        });
-        btn = findViewById(R.id.btnParar);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                detener();
-            }
-        });
     }
-    void reproductorMusca(){
-        mediaPlayer = MediaPlayer.create(this, R.raw.audio);
-    }
-    void iniciar(){
-        mediaPlayer.start();
-        tempVal.setText("Reproduciendo...");
-    }
-    void pausar(){
-        mediaPlayer.pause();
-        tempVal.setText("Pausado...");
-    }
-    void detener(){
-        mediaPlayer.stop();
-        tempVal.setText("Detenido...");
-        reproductorMusca();
+}
+class conversores{
+    double[][] valores= {
+            {1,0.98, 7.73, 25.45, 36.78, 508.87, 8.74},//monedas
+            {},//Longitud
+            {},//tiempo
+            {},//Almacenamiento
+    };
+    public double convertir(int opcion, int de, int a, double cantidad){
+        return valores[opcion][a] / valores[opcion][de] * cantidad;
     }
 }
